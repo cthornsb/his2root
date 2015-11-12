@@ -1,0 +1,8 @@
+# Compiled Source #
+###################
+*.o
+
+# Executable #
+##############
+his2root
+hisReader
