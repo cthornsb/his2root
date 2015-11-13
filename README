@@ -4,57 +4,70 @@ Cory R. Thornsberry
 
 1) Getting the source
 	git clone https://github.com/cthornsb/his2root.git
-	This command will make a new directory named "his2root" in the current directory.
+	This command will make a new directory named "his2root" in the current
+	directory.
 
 2) Installation
 	NOTE: Root 5 or higher must be installed in order to install his2root.
 	By default, the executables are installed to "./his2root/".
-	To install his2root, cd to the directory containing the his2root git repository
-	and simply type "make". The Makefile will handle the compilation of the source code.
+	To install his2root, cd to the directory containing the his2root git
+	repository and simply type "make". The Makefile will handle the
+	compilation of the source code.
 	
-	To install the binaries, type "make install". This will create symbolic links to the
-	executables in your home bin directory (~/bin/ by default). To change the install
-	location, change the variable named "INSTALL_DIR" in the Makefile.
+	To install the binaries, type "make install". This will create symbolic
+	links to the executables in your home bin directory (~/bin/ by default).
+	To change the install location, change the variable named "INSTALL_DIR"
+	in the Makefile.
 	
 3) Using his2root
 	SYNTAX: ./his2root [prefix] <options>
 	 Available options:
 	  --verbose | Print .drr histogram information.
 
-	his2root may be used to convert every histogram in a .his file into root TH1 or TH2.
-	The original input .his file is left unchanged by this program.
+	his2root may be used to convert every histogram in a .his file into root
+	TH1 or TH2. The original input .his file will be left unchanged by this
+	program.
+	
+	his2root will NOT overwrite output root files of the same name without
+	asking if you wish to do so.
 
-	prefix is the .his filename without the extension e.g. if you have a directory with
-	the following files
+	prefix is the .his filename without the extension e.g. if you have a 
+	directory with the following files
 		/home/you/hisfiles/test.his
 		/home/you/hisfiles/test.drr
 		/home/you/hisfiles/test.list
 		/home/you/hisfiles/test.log
-	You would call "./his2root /home/you/hisfiles/test". The program will automatically
-	load the .his file and .drr file. Note that if either the .his file or the .drr file
-	do not exist, the program will terminate.
+	You would call "./his2root /home/you/hisfiles/test". The program will
+	automatically load the .his file and .drr file and will output a root
+	file named test.root. Note that if either the .his file or the .drr
+	file do not exist, the program will terminate.
 	
-	Passing the "--verbose" flag will print detailed information about each histogram
-	which is present in the .drr file.
+	Passing the "--verbose" flag will print detailed information about each
+	histogram which is present in the .drr file.
 	
-	NOTE: The .his file is basically a large chunk of memory. The .drr file contains all
-	 of the information which makes the .his file useful. If the .his file contains less
-	 data than the .drr file says it should contain, the program may crash.
+	NOTE: The .his file is basically a large chunk of memory. The .drr file
+	contains all of the information which makes the .his file useful. If the
+	.his file contains less data than the .drr file says it should contain,
+	the program may crash.
 	 
 4) Using hisReader
 	SYNTAX: ./hisReader [prefix]
 	
-	hisReader may be used to print detailed information about each histogram in the
-	.drr file but does not actually convert anything and does not make an output file.
+	hisReader may be used to print detailed information about each histogram
+	in the .drr file but does not actually convert anything and does not
+	make an output file.
 	
-	hisReader takes no optional arguments. Follow the instructions listed above for his2root.
+	hisReader takes no optional arguments. Follow the instructions listed
+	above for his2root.
 	
 5) Cleaning up
-	Typing "make clean" in the ./his2root/ directory will clean all compiled c++ object files
-	which were used to link the executables but will leave the executables untouched. It is
-	safe to do "make clean" after compiling the executables.
+	Typing "make clean" in the ./his2root/ directory will clean all compiled
+	c++ object files which were used to link the executables but will leave
+	the executables untouched. It is safe to do "make clean" after compiling
+	the executables.
 	
-	Typing "make tidy" will remove the executables in addition to the c++ object files. It will
-	also remove the symbolic links which were installed to the install directory (if available).
-	This command will effectively uninstall his2root and hisReader from the system.
+	Typing "make tidy" will remove the executables in addition to the c++
+	object files. It will also remove the symbolic links which were installed
+	to the install directory (if available). This command will effectively
+	uninstall his2root and hisReader from the system.
 

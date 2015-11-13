@@ -5,6 +5,7 @@
 // SYNTAX: ./his2root [filename] [prefix] <options>
 
 #include <iostream>
+#include <string>
 
 #include "TNamed.h"
 #include "TFile.h"
@@ -13,7 +14,7 @@
 
 #include "hisFile.h"
 
-OutputHisFile *output_his;
+OutputHisFile *output_his = NULL;
 
 void help(char * prog_name_){
 	std::cout << "  SYNTAX: " << prog_name_ << " [prefix] <options>\n";
@@ -28,6 +29,7 @@ int main(int argc, char *argv[]){
 		return 1;
 	}
 
+	// Check for command line options.
 	bool verbose = false;
 	int arg_index = 2;
 	while(arg_index < argc){
@@ -39,24 +41,42 @@ int main(int argc, char *argv[]){
 		arg_index++;
 	}
 
-	std::string output_fname(argv[1]);
-	output_fname += ".root";
-	
-	TFile *file = new TFile(output_fname.c_str(), "RECREATE");
-	if(!file->IsOpen()){
-		std::cout << " Error: Failed to open output file '" << output_fname << "'\n";
-		return 1;
-	}
-	
-	file->cd();
-
+	// Open the input his file and drr file.
 	HisFile his_file(argv[1]);
 	if(!his_file.IsGood()){
 		his_file.GetError();
-		file->Close();
 		return 1;
 	}
+
+	std::string output_fname(argv[1]);
+	output_fname += ".root";
 	
+	// Check that the output root file does not exist.
+	TFile *file = new TFile(output_fname.c_str(), "CREATE");
+	if(!file->IsOpen()){ // The file exists. Do we overwrite it?
+		file->Close();
+		delete file;
+
+		std::string dummy;
+		std::cout << " Warning: Output file '" << output_fname << "' already exists.\n";
+		std::cout << "  Would you like to overwrite it? (y/n) "; std::cin >> dummy;
+		if(!(dummy == "y" || dummy == "Y" || dummy == "yes")){
+			std::cout << "\n ABORTING!\n";
+			return 1;
+		}
+		
+		std::cout << std::endl;
+
+		file = new TFile(output_fname.c_str(), "RECREATE");
+		if(!file->IsOpen()){
+			std::cout << " Error: Failed to open output file '" << output_fname << "'\n";
+			return 1;
+		}
+	}
+	
+	file->cd();
+	
+	// Print the drr file header.
 	if(verbose){
 		his_file.PrintHeader();
 		std::cout << std::endl;
