@@ -519,13 +519,13 @@ TH1I* HisFile::GetTH1(int hist_/*=-1*/){
 	// Get the histogram from the file
 	if(hist_ != -1 && GetHistogram(hist_) == 0){			
 		err_flag = -3; 
-		return false; 
+		return NULL; 
 	}	
 	
 	// Check that this histogram has the correct dimension
 	if(current_entry->hisDim != 1){			
 		err_flag = -4; 
-		return false; 
+		return NULL; 
 	}
 	
 	std::stringstream stream;
