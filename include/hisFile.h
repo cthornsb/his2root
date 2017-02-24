@@ -289,7 +289,7 @@ class HisFile{
 	bool LoadDrr(const char* prefix_, bool open_his_=true);
 
 	/// Write the drr entries to a human readable .list file
-	bool WriteListFile(const char* fname_);
+	bool WriteListFile(const char* fname_=0x0);
 
 	void PrintHeader();
 	

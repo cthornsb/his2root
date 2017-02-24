@@ -739,10 +739,12 @@ bool HisFile::LoadDrr(const char* prefix_, bool open_his_/*=true*/){
 }
 
 /// Write the drr entries to a human readable .list file
-bool HisFile::WriteListFile(const char *fname_){
+bool HisFile::WriteListFile(const char *fname_/*=0x0*/){
 	// Write the .list file (I'm trying to preserve the format of the original file)
 	bool retval = false;
-	std::ofstream list_file(fname_);
+	std::ofstream list_file;
+	if(fname_ == 0x0) list_file.open((filename_prefix+".list").c_str());
+	else list_file.open(fname_);
 	if(list_file.good()){
 		int temp_count = 0;
 		list_file << std::setw(7) << drr_entries.size() << " HISTOGRAMS," << std::setw(13) << total_his_size/2 << " HALF-WORDS\n ID-LIST:\n";
