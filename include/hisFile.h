@@ -159,6 +159,9 @@ class HisFile{
 	bool debug_mode; /// True if debug mode is set
 	std::ifstream drr; /// The input .drr file
 	std::ifstream his; /// The input .his file
+	std::string filename_prefix; /// his & drr file prefix
+	std::string filename_drr; /// Full path to the drr file
+	std::string filename_his; /// Full path to the his file
 	
 	int hists_processed; /// The number of histograms which have been processed
 	int err_flag; /// Integer value for storing error information
@@ -184,6 +187,12 @@ class HisFile{
 	
 	/// Delete all drr entries and clear the entries vector
 	void clear_drr_entries();
+	
+	/// Load the physical histogram file
+	bool load_his();
+	
+	/// Close the histogram
+	void unload_his();
 	
 	/// Initialize all variables
 	void initialize();
@@ -271,6 +280,9 @@ class HisFile{
 	
 	/// Load the next histogram specified in the .drr file
 	size_t GetNextHistogram(bool no_copy_=false);
+	
+	/// Reload the histogram file to update histograms
+	bool Refresh();
 	
 	/// Load drr entries from the .drr file
 	bool LoadDrr(const char* prefix_, bool open_his_=true);

@@ -333,6 +333,27 @@ void HisFile::clear_drr_entries(){
 	current_entry = NULL;
 }
 
+/// Load the physical histogram file
+bool HisFile::load_his(){
+	// Ensure that this his file is not already open
+	unload_his();
+	
+	// Open the his file
+	his.open(filename_his.c_str(), std::ios::binary);
+
+	is_open = his.is_open() && his.good();
+	if(!is_open){ 
+		err_flag = 3;
+		return false; 
+	}
+	return true;
+}
+
+/// Close the histogram file
+void HisFile::unload_his(){
+	if(his.is_open()) his.close();
+}
+
 void HisFile::initialize(){
 	current_entry = NULL;
 	err_flag = 0;
@@ -340,6 +361,9 @@ void HisFile::initialize(){
 	is_good = false;
 	is_open = false;
 	debug_mode = false;
+	filename_prefix = "";
+	filename_drr = "";
+	filename_his = "";
 }
 
 HisFile::HisFile(){
@@ -647,6 +671,12 @@ size_t HisFile::GetNextHistogram(bool no_copy_/*=false*/){
 	return GetHistogram(hists_processed++, no_copy_);
 }
 
+/// Reload the histogram file to update histograms
+bool HisFile::Refresh(){
+	unload_his();
+	return load_his();
+}
+
 bool HisFile::LoadDrr(const char* prefix_, bool open_his_/*=true*/){
 	err_flag = 0; // Reset the error flag
 	if(drr.is_open()){ drr.close(); }
@@ -656,10 +686,12 @@ bool HisFile::LoadDrr(const char* prefix_, bool open_his_/*=true*/){
 
 	hists_processed = 0;
 	
-	std::string filename_prefix(prefix_);
+	filename_prefix = std::string(prefix_);
+	filename_drr = filename_prefix + ".drr";
+	filename_his = filename_prefix + ".his";
 	
 	// Open the drr file
-	drr.open((filename_prefix + ".drr").c_str(), std::ios::binary);
+	drr.open(filename_drr.c_str(), std::ios::binary);
 	
 	// Check that this is a drr file
 	is_open = drr.is_open() && drr.good();
@@ -678,19 +710,11 @@ bool HisFile::LoadDrr(const char* prefix_, bool open_his_/*=true*/){
 		return false; 
 	}
 	
-	// Open the his file
 	if(open_his_){
-		if(his.is_open()){ his.close(); }
-
-		his.open((filename_prefix + ".his").c_str(), std::ios::binary);
-
-		is_open = his.is_open() && his.good();
-		if(!is_open){ 
-			err_flag = 3;
-			return false; 
-		}
+		// Load the his file
+		if(!load_his()) return false;
 	}
-
+	
 	// Read in the drr header
 	drr.read((char*)&nHis, 4);
 	drr.read((char*)&nHWords, 4);
