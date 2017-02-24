@@ -162,6 +162,7 @@ class HisFile{
 	std::string filename_prefix; /// his & drr file prefix
 	std::string filename_drr; /// Full path to the drr file
 	std::string filename_his; /// Full path to the his file
+	std::streampos total_his_size; /// Total size of .his file
 	
 	int hists_processed; /// The number of histograms which have been processed
 	int err_flag; /// Integer value for storing error information
@@ -287,6 +288,9 @@ class HisFile{
 	/// Load drr entries from the .drr file
 	bool LoadDrr(const char* prefix_, bool open_his_=true);
 
+	/// Write the drr entries to a human readable .list file
+	bool WriteListFile(const char* fname_);
+
 	void PrintHeader();
 	
 	void PrintEntry();
@@ -303,7 +307,6 @@ class OutputHisFile : public HisFile{
 	unsigned int flush_count; /// Number of fills since last flush
 	std::vector<fill_queue*> fills_waiting; /// Vector containing list of histograms to be filled
 	std::vector<unsigned int> failed_fills; /// Vector containing list of histogram fills into an invalid his id
-	std::streampos total_his_size; /// Total size of .his file
 
 	/// Find the specified .drr entry in the drr list using its histogram id
 	drr_entry *find_drr_in_list(unsigned int hisID_);

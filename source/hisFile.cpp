@@ -364,6 +364,7 @@ void HisFile::initialize(){
 	filename_prefix = "";
 	filename_drr = "";
 	filename_his = "";
+	total_his_size = 0;
 }
 
 HisFile::HisFile(){
@@ -737,6 +738,29 @@ bool HisFile::LoadDrr(const char* prefix_, bool open_his_/*=true*/){
 	return true;
 }
 
+/// Write the drr entries to a human readable .list file
+bool HisFile::WriteListFile(const char *fname_){
+	// Write the .list file (I'm trying to preserve the format of the original file)
+	bool retval = false;
+	std::ofstream list_file(fname_);
+	if(list_file.good()){
+		int temp_count = 0;
+		list_file << std::setw(7) << drr_entries.size() << " HISTOGRAMS," << std::setw(13) << total_his_size/2 << " HALF-WORDS\n ID-LIST:\n";
+		for(std::vector<drr_entry*>::iterator iter = drr_entries.begin(); iter != drr_entries.end(); iter++){
+			if(temp_count % 8 == 0 && temp_count != 0){ list_file << std::endl; }
+			list_file << std::setw(8) << (*iter)->hisID;
+			temp_count++;
+		}
+		list_file << "\n  HID  DIM HWPC  LEN(CH)   COMPR  MIN   MAX   OFFSET    TITLE\n";
+		for(std::vector<drr_entry*>::iterator iter = drr_entries.begin(); iter != drr_entries.end(); iter++){
+			(*iter)->print_list(&list_file);
+		}
+		retval = true;
+	}
+	list_file.close();
+	return retval;	
+}
+
 void HisFile::PrintHeader(){
 	err_flag = 0; // Reset the error flag
 	if(!is_open){ 
@@ -847,28 +871,23 @@ void OutputHisFile::flush(){
 	flush_count = 0;
 }
 
-OutputHisFile::OutputHisFile(){
+OutputHisFile::OutputHisFile() : HisFile() {
 	fname = "";
 	writable = false;
 	finalized = false;
 	existing_file = false;
 	flush_wait = 100000;
 	flush_count = 0;
-	total_his_size = 0;
-	
-	initialize();
 }
 
-OutputHisFile::OutputHisFile(std::string fname_prefix){
+OutputHisFile::OutputHisFile(std::string fname_prefix) : HisFile() {
 	fname = "";
 	writable = false;
 	finalized = false;
 	existing_file = false;
 	flush_wait = 100000;
 	flush_count = 0;
-	total_his_size = 0;
 	
-	initialize();
 	Open(fname_prefix);
 }
 
@@ -971,26 +990,10 @@ bool OutputHisFile::Finalize(bool make_list_file_/*=false*/, const std::string &
 	}
 	drr_file.close();
 
-	// Write the .list file (I'm trying to preserve the format of the original file)
-	std::ofstream list_file((fname+".list").c_str());
-	if(list_file.good()){
-		int temp_count = 0;
-		list_file << std::setw(7) << drr_entries.size() << " HISTOGRAMS," << std::setw(13) << total_his_size/2 << " HALF-WORDS\n ID-LIST:\n";
-		for(std::vector<drr_entry*>::iterator iter = drr_entries.begin(); iter != drr_entries.end(); iter++){
-			if(temp_count % 8 == 0 && temp_count != 0){ list_file << std::endl; }
-			list_file << std::setw(8) << (*iter)->hisID;
-			temp_count++;
-		}
-		list_file << "\n  HID  DIM HWPC  LEN(CH)   COMPR  MIN   MAX   OFFSET    TITLE\n";
-		for(std::vector<drr_entry*>::iterator iter = drr_entries.begin(); iter != drr_entries.end(); iter++){
-			(*iter)->print_list(&list_file);
-		}
-	}
-	else{
+	if(!WriteListFile((fname+".list").c_str())){
 		if(debug_mode){ std::cout << "debug: Failed to open the .list file for writing!\n"; }
 		retval = false;
 	}
-	list_file.close();	
 
 	finalized = true;
 	
