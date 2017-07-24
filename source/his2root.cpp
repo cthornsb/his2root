@@ -20,6 +20,19 @@ void help(char * prog_name_){
 	std::cout << "  SYNTAX: " << prog_name_ << " [prefix] <options>\n";
 	std::cout << "   Available options:\n";
 	std::cout << "    --verbose | Print .drr histogram information.\n";
+	std::cout << "    --specify | Convert only histograrm IDs in comma-delimited string (e.g. 293,1593,1782,...).\n";
+}
+
+void parseUserInput(const char *input, std::vector<unsigned int> &vec){
+	std::string temp = "";
+	for(size_t i = 0; i < strlen(input); i++){
+		if(input[i] == ','){
+			vec.push_back(strtoul(temp.c_str(), NULL, 0));
+			temp = "";
+		}
+		else{ temp.push_back(input[i]); }
+	}
+	if(!temp.empty()) vec.push_back(strtoul(temp.c_str(), NULL, 0));
 }
 
 int main(int argc, char *argv[]){
@@ -32,8 +45,16 @@ int main(int argc, char *argv[]){
 	// Check for command line options.
 	bool verbose = false;
 	int arg_index = 2;
+	std::vector<unsigned int> specIDs;
 	while(arg_index < argc){
 		if(strcmp(argv[arg_index], "--verbose") == 0){ verbose = true; }
+		else if(strcmp(argv[arg_index], "--specify") == 0){
+			if(arg_index+1 >= argc){
+				std::cout << " Error: --specify requires an argument, but none were given\n";
+				return 1;
+			}
+			parseUserInput(argv[++arg_index], specIDs);
+		}
 		else{ 
 			std::cout << " Error: Encountered unrecognized option '" << argv[arg_index] << "'\n";
 			return 1;
@@ -87,7 +108,20 @@ int main(int argc, char *argv[]){
 	name->Delete();
 	
 	int count = 0;
-	while(his_file.GetNextHistogram() > 0){
+	std::vector<unsigned int>::iterator specIter = specIDs.begin();
+	while(true){
+		if(specIDs.empty()){
+			if(his_file.GetNextHistogram() == 0) break;
+		}
+		else{
+			if(specIter == specIDs.end()) break;
+			if(his_file.GetHistogramByID(*specIter) == 0){
+				std::cout << " Warning! Failed to find histogram with ID=" << *specIter << std::endl;
+				specIter++;
+				continue;
+			}
+			specIter++;
+		}
 		if(verbose){ 
 			his_file.PrintEntry(); 
 			std::cout << std::endl;
