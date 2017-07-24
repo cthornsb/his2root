@@ -1,0 +1,17 @@
+#%Module1.0
+##
+## modules his2root
+##
+## modulefiles/his2root
+##
+proc ModulesHelp {} {
+	global version modroot
+
+	puts stderr "his2root - Converts UPAK his files to root histograms"
+}
+module-whatis "Converts UPAK his files to root histograms"
+
+# Change this to the install directory.
+set topdir 	/opt/his2root
+
+prepend-path PATH	$topdir/exec
